@@ -18,6 +18,7 @@
 package net.devh.springboot.autoconfigure.grpc.client;
 
 import java.net.InetSocketAddress;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -32,6 +33,8 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
+import com.nepxion.discovery.plugin.framework.adapter.PluginAdapter;
+import com.nepxion.discovery.plugin.strategy.context.StrategyContextHolder;
 
 import io.grpc.Attributes;
 import io.grpc.Channel;
@@ -70,16 +73,21 @@ public class DiscoveryClientNameResolver extends NameResolver {
     private Listener listener;
     @GuardedBy("this")
     private List<ServiceInstance> serviceInstanceList;
+    private  final PluginAdapter pluginAdapte;
+    private  final StrategyContextHolder strategyContextHolder;
 
     public DiscoveryClientNameResolver(String name, DiscoveryClient client, Attributes attributes,
             SharedResourceHolder.Resource<ScheduledExecutorService> timerServiceResource,
-            SharedResourceHolder.Resource<ExecutorService> executorResource) {
+            SharedResourceHolder.Resource<ExecutorService> executorResource,
+            PluginAdapter pluginAdapter,StrategyContextHolder strategyContextHolder) {
         this.name = name;
         this.client = client;
         this.attributes = attributes;
         this.timerServiceResource = timerServiceResource;
         this.executorResource = executorResource;
         this.serviceInstanceList = Lists.newArrayList();
+        this.pluginAdapte = pluginAdapter;
+        this.strategyContextHolder = strategyContextHolder;
     }
 
     @Override
@@ -123,6 +131,27 @@ public class DiscoveryClientNameResolver extends NameResolver {
                 List<ServiceInstance> newServiceInstanceList;
                 try {
                     newServiceInstanceList = client.getInstances(name);
+                    
+                    //TODO
+                    String serviceId = pluginAdapte.getServiceId();
+                    String grayVersion = "1.0";
+                    
+                    Iterator<ServiceInstance> iterator = newServiceInstanceList.iterator();
+                    
+                    while(iterator.hasNext()) {
+                    	ServiceInstance serviceInstance = iterator.next();
+                    	if(serviceInstance.getMetadata().get("version").contains(grayVersion)) {
+                    		iterator.remove();
+                    		log.info("gRPC server {},grayVersion{}, remove serviceInstance  {}:{},tags:{}",name, grayVersion,
+                    				serviceInstance.getHost(), serviceInstance.getPort(),serviceInstance.getMetadata().get("version"));
+                    	}
+                    	
+                    }
+                    
+                    
+                    
+                    
+                    
                 } catch (Exception e) {
                     savedListener.onError(Status.UNAVAILABLE.withCause(e));
                     return;
@@ -159,6 +188,10 @@ public class DiscoveryClientNameResolver extends NameResolver {
             }
         }
     };
+    
+    
+    
+    
 
     private boolean isNeedToUpdateServiceInstanceList(List<ServiceInstance> newServiceInstanceList) {
         if (serviceInstanceList.size() == newServiceInstanceList.size()) {

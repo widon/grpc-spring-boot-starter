@@ -25,6 +25,8 @@ import org.springframework.cloud.client.discovery.event.HeartbeatMonitor;
 import org.springframework.context.event.EventListener;
 
 import com.google.common.collect.Lists;
+import com.nepxion.discovery.plugin.framework.adapter.PluginAdapter;
+import com.nepxion.discovery.plugin.strategy.context.StrategyContextHolder;
 
 import io.grpc.LoadBalancer;
 
@@ -42,9 +44,10 @@ public class DiscoveryClientChannelFactory extends AbstractChannelFactory {
 
     public DiscoveryClientChannelFactory(final GrpcChannelsProperties properties,
             final LoadBalancer.Factory loadBalancerFactory, final DiscoveryClient client,
-            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
+            final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
+            PluginAdapter pluginAdapter,StrategyContextHolder strategyContextHolder) {
         <DiscoveryClientChannelFactory>super(properties, loadBalancerFactory,
-                thiz -> new DiscoveryClientResolverFactory(client, thiz), globalClientInterceptorRegistry);
+                thiz -> new DiscoveryClientResolverFactory(client, thiz,pluginAdapter,strategyContextHolder), globalClientInterceptorRegistry);
     }
 
     public void addDiscoveryClientNameResolver(final DiscoveryClientNameResolver discoveryClientNameResolver) {

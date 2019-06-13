@@ -64,6 +64,20 @@
       <version>${lombok.version}</version>
       <scope>provided</scope>
     </dependency>
+    
+        <dependency>
+	        <groupId>com.nepxion</groupId>
+	        <artifactId>discovery-plugin-framework</artifactId>
+	        <version>4.8.13</version>
+        </dependency>
+        
+        <dependency>
+	        <groupId>com.nepxion</groupId>
+	        <artifactId>discovery-plugin-strategy</artifactId>
+	        <version>4.8.13</version>
+        </dependency>
+        
+        
   </dependencies>
 
 </project>

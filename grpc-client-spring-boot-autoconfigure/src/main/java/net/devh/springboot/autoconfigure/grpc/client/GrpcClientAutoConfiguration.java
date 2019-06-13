@@ -28,6 +28,9 @@ import org.springframework.cloud.sleuth.autoconfig.TraceAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.nepxion.discovery.plugin.framework.adapter.PluginAdapter;
+import com.nepxion.discovery.plugin.strategy.context.StrategyContextHolder;
+
 import brave.Tracing;
 import brave.grpc.GrpcTracing;
 import io.grpc.LoadBalancer;
@@ -92,9 +95,11 @@ public class GrpcClientAutoConfiguration {
                 final GrpcChannelsProperties channels,
                 final LoadBalancer.Factory loadBalancerFactory,
                 final DiscoveryClient discoveryClient,
-                final GlobalClientInterceptorRegistry globalClientInterceptorRegistry) {
+                final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
+                 PluginAdapter pluginAdapter,
+                 StrategyContextHolder strategyContextHolder) {
             return new DiscoveryClientChannelFactory(channels, loadBalancerFactory, discoveryClient,
-                    globalClientInterceptorRegistry);
+                    globalClientInterceptorRegistry,pluginAdapter,strategyContextHolder);
         }
     }
 
