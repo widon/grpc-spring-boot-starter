@@ -41,6 +41,7 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
 
     private final DiscoveryClient client;
     private DiscoveryClientChannelFactory discoveryClientChannelFactory;
+    
     private PluginAdapter pluginAdapter;
     private StrategyContextHolder strategyContextHolder;
 

@@ -34,7 +34,7 @@ import com.nepxion.discovery.plugin.strategy.context.StrategyContextHolder;
 import brave.Tracing;
 import brave.grpc.GrpcTracing;
 import io.grpc.LoadBalancer;
-import io.grpc.util.RoundRobinLoadBalancerFactory;
+//import io.grpc.util.RoundRobinLoadBalancerFactory;
 
 /**
  * The auto configuration used by Spring-Boot that contains all beans to create and inject grpc clients into beans.
@@ -66,8 +66,12 @@ public class GrpcClientAutoConfiguration {
 
     @ConditionalOnMissingBean
     @Bean
-    public LoadBalancer.Factory grpcLoadBalancerFactory() {
-        return RoundRobinLoadBalancerFactory.getInstance();
+    @ConditionalOnBean(DiscoveryClient.class)
+    public LoadBalancer.Factory grpcLoadBalancerFactory(
+    		PluginAdapter pluginAdapter,
+            StrategyContextHolder strategyContextHolder) {
+//        return RoundRobinLoadBalancerFactory.getInstance();
+    	return new RoundRobinLoadBalancerFactory(pluginAdapter,strategyContextHolder);
     }
 
     @ConditionalOnMissingBean(value = GrpcChannelFactory.class,

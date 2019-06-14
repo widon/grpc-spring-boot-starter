@@ -29,6 +29,7 @@ import com.nepxion.discovery.plugin.framework.adapter.PluginAdapter;
 import com.nepxion.discovery.plugin.strategy.context.StrategyContextHolder;
 
 import io.grpc.LoadBalancer;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * This channel factory creates new Channels using a {@link DiscoveryClient service discovery}. This class utilizes
@@ -37,6 +38,7 @@ import io.grpc.LoadBalancer;
  * @author Michael (yidongnan@gmail.com)
  * @since 5/17/16
  */
+@Slf4j
 public class DiscoveryClientChannelFactory extends AbstractChannelFactory {
 
     private final HeartbeatMonitor monitor = new HeartbeatMonitor();
@@ -56,6 +58,7 @@ public class DiscoveryClientChannelFactory extends AbstractChannelFactory {
 
     @EventListener(HeartbeatEvent.class)
     public void heartbeat(final HeartbeatEvent event) {
+        log.info("HeartbeatEvent-------Listener,event.Value={}",event.getValue());
         if (this.monitor.update(event.getValue())) {
             for (final DiscoveryClientNameResolver discoveryClientNameResolver : this.discoveryClientNameResolvers) {
                 discoveryClientNameResolver.refresh();

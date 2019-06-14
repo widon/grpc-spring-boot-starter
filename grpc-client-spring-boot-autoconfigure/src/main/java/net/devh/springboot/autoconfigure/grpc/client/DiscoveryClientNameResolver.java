@@ -37,6 +37,7 @@ import com.nepxion.discovery.plugin.framework.adapter.PluginAdapter;
 import com.nepxion.discovery.plugin.strategy.context.StrategyContextHolder;
 
 import io.grpc.Attributes;
+import io.grpc.Attributes.Key;
 import io.grpc.Channel;
 import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
@@ -97,6 +98,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
 
     @Override
     public final synchronized void start(Listener listener) {
+    	log.debug("NameResolver start---------");
         Preconditions.checkState(this.listener == null, "already started");
         timerService = SharedResourceHolder.get(timerServiceResource);
         executor = SharedResourceHolder.get(executorResource);
@@ -107,6 +109,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
     @Override
     public final synchronized void refresh() {
         if (listener != null) {
+        	log.debug("NameResolver refresh---------");
             resolve();
         }
     }
@@ -132,23 +135,24 @@ public class DiscoveryClientNameResolver extends NameResolver {
                 try {
                     newServiceInstanceList = client.getInstances(name);
                     
+                    
+                    
                     //TODO
+                    //***************start****************************//
                     String serviceId = pluginAdapte.getServiceId();
                     String grayVersion = "1.0";
                     
-                    Iterator<ServiceInstance> iterator = newServiceInstanceList.iterator();
+//                    Iterator<ServiceInstance> iterator = newServiceInstanceList.iterator();
                     
-                    while(iterator.hasNext()) {
-                    	ServiceInstance serviceInstance = iterator.next();
-                    	if(serviceInstance.getMetadata().get("version").contains(grayVersion)) {
-                    		iterator.remove();
-                    		log.info("gRPC server {},grayVersion{}, remove serviceInstance  {}:{},tags:{}",name, grayVersion,
-                    				serviceInstance.getHost(), serviceInstance.getPort(),serviceInstance.getMetadata().get("version"));
-                    	}
-                    	
-                    }
-                    
-                    
+//                    while(iterator.hasNext()) {
+//                    	ServiceInstance serviceInstance = iterator.next();
+//                    	if(serviceInstance.getMetadata().get("version").contains(grayVersion)) {
+//                    		iterator.remove();
+//                    		log.info("gRPC server {},grayVersion{}, remove serviceInstance  {}:{},tags:{}",name, grayVersion,
+//                    				serviceInstance.getHost(), serviceInstance.getPort(),serviceInstance.getMetadata().get("version"));
+//                    	}
+//                    }
+                    //***************END****************************//
                     
                     
                     
@@ -168,9 +172,16 @@ public class DiscoveryClientNameResolver extends NameResolver {
                         Map<String, String> metadata = serviceInstance.getMetadata();
                         if (metadata.get("gRPC.port") != null) {
                             Integer port = Integer.valueOf(metadata.get("gRPC.port"));
-                            log.info("Found gRPC server {} {}:{}", name, serviceInstance.getHost(), port);
+                            Attributes attr = Attributes.EMPTY;
+                            String version = metadata.get("version");
+                            if(version != null) { 
+//                            	RpcStrategyContext.getCurrentContext().
+                            	Key<String> ikey = Key.create("version");
+                            	attr = Attributes.newBuilder().set(ikey, metadata.get("version")).build();
+                            }
+                            log.info("Found gRPC server {} {}:{},version={}", name, serviceInstance.getHost(), port,version);
                             EquivalentAddressGroup addressGroup = new EquivalentAddressGroup(
-                                    new InetSocketAddress(serviceInstance.getHost(), port), Attributes.EMPTY);
+                                    new InetSocketAddress(serviceInstance.getHost(), port), attr);
                             equivalentAddressGroups.add(addressGroup);
                         } else {
                             log.error("Can not found gRPC server {}", name);
