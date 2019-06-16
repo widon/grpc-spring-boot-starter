@@ -35,15 +35,19 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.nepxion.discovery.plugin.framework.adapter.PluginAdapter;
 import com.nepxion.discovery.plugin.strategy.context.StrategyContextHolder;
+import com.nepxion.discovery.plugin.strategy.service.context.ServiceStrategyContextHolder;
 
 import io.grpc.Attributes;
 import io.grpc.Attributes.Key;
+import io.grpc.LoadBalancer.Subchannel;
 import io.grpc.Channel;
+import io.grpc.ConnectivityStateInfo;
 import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
 import io.grpc.Status;
 import io.grpc.internal.SharedResourceHolder;
 import lombok.extern.slf4j.Slf4j;
+import net.devh.springboot.autoconfigure.grpc.client.RoundRobinLoadBalancerFactory.Ref;
 
 /**
  * The DiscoveryClientNameResolver configures the hosts and the associated ports for {@link Channel}s to use based on a
@@ -75,12 +79,12 @@ public class DiscoveryClientNameResolver extends NameResolver {
     @GuardedBy("this")
     private List<ServiceInstance> serviceInstanceList;
     private  final PluginAdapter pluginAdapte;
-    private  final StrategyContextHolder strategyContextHolder;
+    private  final ServiceStrategyContextHolder serviceStrategyContextHolder;
 
     public DiscoveryClientNameResolver(String name, DiscoveryClient client, Attributes attributes,
             SharedResourceHolder.Resource<ScheduledExecutorService> timerServiceResource,
             SharedResourceHolder.Resource<ExecutorService> executorResource,
-            PluginAdapter pluginAdapter,StrategyContextHolder strategyContextHolder) {
+            PluginAdapter pluginAdapter,ServiceStrategyContextHolder serviceStrategyContextHolder) {
         this.name = name;
         this.client = client;
         this.attributes = attributes;
@@ -88,7 +92,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
         this.executorResource = executorResource;
         this.serviceInstanceList = Lists.newArrayList();
         this.pluginAdapte = pluginAdapter;
-        this.strategyContextHolder = strategyContextHolder;
+        this.serviceStrategyContextHolder = serviceStrategyContextHolder;
     }
 
     @Override
@@ -139,8 +143,8 @@ public class DiscoveryClientNameResolver extends NameResolver {
                     
                     //TODO
                     //***************start****************************//
-                    String serviceId = pluginAdapte.getServiceId();
-                    String grayVersion = "1.0";
+//                    String serviceId = pluginAdapte.getServiceId();
+//                    String grayVersion = "1.0";
                     
 //                    Iterator<ServiceInstance> iterator = newServiceInstanceList.iterator();
                     
@@ -168,18 +172,29 @@ public class DiscoveryClientNameResolver extends NameResolver {
                         return;
                     }
                     List<EquivalentAddressGroup> equivalentAddressGroups = Lists.newArrayList();
+                    Attributes attr = Attributes.EMPTY;
                     for (ServiceInstance serviceInstance : serviceInstanceList) {
                         Map<String, String> metadata = serviceInstance.getMetadata();
                         if (metadata.get("gRPC.port") != null) {
                             Integer port = Integer.valueOf(metadata.get("gRPC.port"));
-                            Attributes attr = Attributes.EMPTY;
+                            
                             String version = metadata.get("version");
+                        	String versionKey = name+"-"+port+"-version";
+                        	serviceStrategyContextHolder.setRpcAttributes(versionKey,version);
+                        	serviceStrategyContextHolder.setRpcAttributes("serverName",name);
+                        	
+                        	
                             if(version != null) { 
-//                            	RpcStrategyContext.getCurrentContext().
-                            	Key<String> ikey = Key.create("version");
-                            	attr = Attributes.newBuilder().set(ikey, metadata.get("version")).build();
+                            	
+                            	Attributes.Builder  builder = Attributes.newBuilder();
+                            	builder.set(GrpcClientConstants.VERSION_ATTR_KEY, metadata.get("version"));
+                            	
+                            	builder.set(GrpcClientConstants.NAME_ATTR_KEY, name);
+                            	
+                            	attr = builder.build();
                             }
-                            log.info("Found gRPC server {} {}:{},version={}", name, serviceInstance.getHost(), port,version);
+                            
+                            log.info("Found gRPC server {} {}:{},{}={}", name, serviceInstance.getHost(), port,versionKey,version);
                             EquivalentAddressGroup addressGroup = new EquivalentAddressGroup(
                                     new InetSocketAddress(serviceInstance.getHost(), port), attr);
                             equivalentAddressGroups.add(addressGroup);
@@ -187,6 +202,7 @@ public class DiscoveryClientNameResolver extends NameResolver {
                             log.error("Can not found gRPC server {}", name);
                         }
                     }
+//                    savedListener.onAddresses(equivalentAddressGroups, Attributes.EMPTY);
                     savedListener.onAddresses(equivalentAddressGroups, Attributes.EMPTY);
                 } else {
                     savedListener.onError(Status.UNAVAILABLE

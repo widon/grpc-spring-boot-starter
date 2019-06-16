@@ -27,6 +27,7 @@ import org.springframework.context.event.EventListener;
 import com.google.common.collect.Lists;
 import com.nepxion.discovery.plugin.framework.adapter.PluginAdapter;
 import com.nepxion.discovery.plugin.strategy.context.StrategyContextHolder;
+import com.nepxion.discovery.plugin.strategy.service.context.ServiceStrategyContextHolder;
 
 import io.grpc.LoadBalancer;
 import lombok.extern.slf4j.Slf4j;
@@ -47,9 +48,9 @@ public class DiscoveryClientChannelFactory extends AbstractChannelFactory {
     public DiscoveryClientChannelFactory(final GrpcChannelsProperties properties,
             final LoadBalancer.Factory loadBalancerFactory, final DiscoveryClient client,
             final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
-            PluginAdapter pluginAdapter,StrategyContextHolder strategyContextHolder) {
+            PluginAdapter pluginAdapter,ServiceStrategyContextHolder serviceStrategyContextHolder) {
         <DiscoveryClientChannelFactory>super(properties, loadBalancerFactory,
-                thiz -> new DiscoveryClientResolverFactory(client, thiz,pluginAdapter,strategyContextHolder), globalClientInterceptorRegistry);
+                thiz -> new DiscoveryClientResolverFactory(client, thiz,pluginAdapter,serviceStrategyContextHolder), globalClientInterceptorRegistry);
     }
 
     public void addDiscoveryClientNameResolver(final DiscoveryClientNameResolver discoveryClientNameResolver) {
@@ -58,7 +59,7 @@ public class DiscoveryClientChannelFactory extends AbstractChannelFactory {
 
     @EventListener(HeartbeatEvent.class)
     public void heartbeat(final HeartbeatEvent event) {
-        log.info("HeartbeatEvent-------Listener,event.Value={}",event.getValue());
+//        log.debug("HeartbeatEvent-------Listener,event.Value={}",event.getValue());
         if (this.monitor.update(event.getValue())) {
             for (final DiscoveryClientNameResolver discoveryClientNameResolver : this.discoveryClientNameResolvers) {
                 discoveryClientNameResolver.refresh();

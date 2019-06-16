@@ -30,6 +30,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.nepxion.discovery.plugin.framework.adapter.PluginAdapter;
 import com.nepxion.discovery.plugin.strategy.context.StrategyContextHolder;
+import com.nepxion.discovery.plugin.strategy.service.context.ServiceStrategyContextHolder;
 
 import brave.Tracing;
 import brave.grpc.GrpcTracing;
@@ -69,9 +70,9 @@ public class GrpcClientAutoConfiguration {
     @ConditionalOnBean(DiscoveryClient.class)
     public LoadBalancer.Factory grpcLoadBalancerFactory(
     		PluginAdapter pluginAdapter,
-            StrategyContextHolder strategyContextHolder) {
+    		ServiceStrategyContextHolder serviceStrategyContextHolder) {
 //        return RoundRobinLoadBalancerFactory.getInstance();
-    	return new RoundRobinLoadBalancerFactory(pluginAdapter,strategyContextHolder);
+    	return new RoundRobinLoadBalancerFactory(pluginAdapter,serviceStrategyContextHolder);
     }
 
     @ConditionalOnMissingBean(value = GrpcChannelFactory.class,
@@ -101,9 +102,9 @@ public class GrpcClientAutoConfiguration {
                 final DiscoveryClient discoveryClient,
                 final GlobalClientInterceptorRegistry globalClientInterceptorRegistry,
                  PluginAdapter pluginAdapter,
-                 StrategyContextHolder strategyContextHolder) {
+                 ServiceStrategyContextHolder serviceStrategyContextHolder) {
             return new DiscoveryClientChannelFactory(channels, loadBalancerFactory, discoveryClient,
-                    globalClientInterceptorRegistry,pluginAdapter,strategyContextHolder);
+                    globalClientInterceptorRegistry,pluginAdapter,serviceStrategyContextHolder);
         }
     }
 

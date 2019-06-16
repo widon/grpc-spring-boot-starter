@@ -24,8 +24,12 @@ import static io.grpc.ConnectivityState.SHUTDOWN;
 import static io.grpc.ConnectivityState.TRANSIENT_FAILURE;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.nepxion.discovery.common.constant.DiscoveryConstant;
+import com.nepxion.discovery.common.util.JsonUtil;
+import com.nepxion.discovery.common.util.StringUtil;
 import com.nepxion.discovery.plugin.framework.adapter.PluginAdapter;
 import com.nepxion.discovery.plugin.strategy.context.StrategyContextHolder;
+import com.nepxion.discovery.plugin.strategy.service.context.ServiceStrategyContextHolder;
 
 import io.grpc.Attributes;
 import io.grpc.ConnectivityState;
@@ -64,6 +68,8 @@ import java.util.logging.Logger;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * A {@link LoadBalancer} that provides round-robin load balancing mechanism over the
  * addresses from the {@link NameResolver}.  The sub-lists received from the name resolver
@@ -77,14 +83,15 @@ public class RoundRobinLoadBalancerFactory extends LoadBalancer.Factory {
 
 //  private static final RoundRobinLoadBalancerFactory INSTANCE =
 //      new RoundRobinLoadBalancerFactory();
+	
 	public static PluginAdapter pluginAdapter;
-	public static StrategyContextHolder strategyContextHolder;
+	public static ServiceStrategyContextHolder serviceStrategyContextHolder;;
 
   public RoundRobinLoadBalancerFactory(PluginAdapter pluginAdapter,
-          StrategyContextHolder strategyContextHolder) {
+		  ServiceStrategyContextHolder serviceStrategyContextHolder) {
 	  System.out.println("初始化-----------");
 	  RoundRobinLoadBalancerFactory.pluginAdapter = pluginAdapter;
-	  RoundRobinLoadBalancerFactory.strategyContextHolder = strategyContextHolder;
+	  RoundRobinLoadBalancerFactory.serviceStrategyContextHolder = serviceStrategyContextHolder;
 	  
   }
 
@@ -136,9 +143,15 @@ public class RoundRobinLoadBalancerFactory extends LoadBalancer.Factory {
     @Override
     public void handleResolvedAddressGroups(
         List<EquivalentAddressGroup> servers, Attributes attributes) {
+    	logger.log(Level.FINE,"RoundRobinLoadBalancer 开始执行方法-handleResolvedAddressGroups,serversInfo={0}",servers.toString());
+    	
+    	
       Set<EquivalentAddressGroup> currentAddrs = subchannels.keySet();
+      //对最新的serversList进行去重
       Set<EquivalentAddressGroup> latestAddrs = stripAttrs(servers);
+      //相对于之前的地址，新增的地址
       Set<EquivalentAddressGroup> addedAddrs = setsDifference(latestAddrs, currentAddrs);
+      //相对于之前的地址，已经不存在的链接
       Set<EquivalentAddressGroup> removedAddrs = setsDifference(currentAddrs, latestAddrs);
 
       Map<String, Object> serviceConfig =
@@ -171,6 +184,11 @@ public class RoundRobinLoadBalancerFactory extends LoadBalancer.Factory {
             .set(STATE_INFO,
                 new Ref<ConnectivityStateInfo>(ConnectivityStateInfo.forNonError(IDLE)));
 
+        //加入subchannel 的标注信息
+        subchannelAttrs.setAll(addressGroup.getAttributes());
+        
+        
+        
         Ref<Subchannel> stickyRef = null;
         if (stickinessState != null) {
           subchannelAttrs.set(STICKY_REF, stickyRef = new Ref<Subchannel>(null));
@@ -190,6 +208,9 @@ public class RoundRobinLoadBalancerFactory extends LoadBalancer.Factory {
         Subchannel subchannel = subchannels.remove(addressGroup);
         subchannel.shutdown();
       }
+      
+      logger.log(Level.FINE,"RoundRobinLoadBalancer 执行方法-handleResolvedAddressGroups后,subchannels={0}",subchannels.toString());
+      
 
       updateBalancingState(getAggregatedState(), getAggregatedError());
     }
@@ -250,7 +271,7 @@ public class RoundRobinLoadBalancerFactory extends LoadBalancer.Factory {
     private static Set<EquivalentAddressGroup> stripAttrs(List<EquivalentAddressGroup> groupList) {
       Set<EquivalentAddressGroup> addrs = new HashSet<EquivalentAddressGroup>(groupList.size());
       for (EquivalentAddressGroup group : groupList) {
-        addrs.add(new EquivalentAddressGroup(group.getAddresses()));
+        addrs.add(new EquivalentAddressGroup(group.getAddresses(),group.getAttributes()));
       }
       return addrs;
     }
@@ -426,8 +447,9 @@ public class RoundRobinLoadBalancerFactory extends LoadBalancer.Factory {
             }
           }
         }
+        
 
-        return PickResult.withSubchannel(subchannel != null ? subchannel : nextSubchannel(pluginAdapter,strategyContextHolder));
+        return PickResult.withSubchannel(subchannel != null ? subchannel : nextSubchannel(pluginAdapter,serviceStrategyContextHolder));
       }
 
       if (status != null) {
@@ -453,14 +475,51 @@ public class RoundRobinLoadBalancerFactory extends LoadBalancer.Factory {
       return list.get(i);
     }
     
-    private Subchannel nextSubchannel(PluginAdapter pluginAdapter,StrategyContextHolder strategyContextHolder) {
-        String serviced = pluginAdapter.getServiceId();
-        String version = pluginAdapter.getVersion();
-    	log.debug("当前主机的serviced={},version={}",serviced,version);
-    	
+    private Subchannel nextSubchannel(PluginAdapter pluginAdapter, ServiceStrategyContextHolder serviceStrategyContextHolder) {
     	int size = list.size();
         if (size == 0) {
           throw new NoSuchElementException();
+        }
+
+        
+//        Attributes.Key<String> nameKey = Attributes.Key.create("serverName");
+//        Attributes.Key<String> versionAttrKey = Attributes.Key.create("version");
+        String serviceId = list.get(0).getAttributes().get(GrpcClientConstants.NAME_ATTR_KEY);
+//        String serviceId = "cloud-grpc-server";
+    	
+    	String consumerServiced = pluginAdapter.getServiceId();
+        String consumerVersion = pluginAdapter.getVersion();
+    	log.debug("当前主机信息：local server info, serviced={},version={},invoke server info,serviceId={}",consumerServiced,consumerVersion,serviceId);
+//    	String grayChainStr = "{ \"cloud-grpc-server\":\"1.1\"}";
+    	String grayChainStr = serviceStrategyContextHolder.getHeader(DiscoveryConstant.N_D_VERSION);
+    	log.debug("invoke strategy info={}",grayChainStr);
+    	
+    	List<Subchannel> newList = null;
+        if(StringUtils.isNotBlank(grayChainStr)) {
+            String versions = null;
+            try {
+                Map<String, String> versionMap = JsonUtil.fromJson(grayChainStr, Map.class);
+                versions = versionMap.get(serviceId);
+            } catch (Exception e) {
+                versions = grayChainStr;
+            }
+            
+            if(StringUtils.isNotBlank(versions)) {
+                List<String> versionList = StringUtil.splitToList(versions, DiscoveryConstant.SEPARATE);
+
+                newList = new ArrayList<>();
+                for( Subchannel subchannel : list) {
+                	String subChannelVersion = subchannel.getAttributes().get(GrpcClientConstants.VERSION_ATTR_KEY);
+                	if(versionList.contains(subChannelVersion)) {
+                		newList.add(subchannel);
+                	}
+                }
+                
+            	size = newList.size();
+                if (size == 0) {
+                  throw new NoSuchElementException();
+                }
+            }
         }
 
         int i = indexUpdater.incrementAndGet(this);
@@ -469,7 +528,12 @@ public class RoundRobinLoadBalancerFactory extends LoadBalancer.Factory {
           i %= size;
           indexUpdater.compareAndSet(this, oldi, i);
         }
-        return list.get(i);
+        
+        if( null != newList && newList.size() > 0) {
+        	return newList.get(i);
+        }else {
+        	 return list.get(i);
+        }
       }
     
 

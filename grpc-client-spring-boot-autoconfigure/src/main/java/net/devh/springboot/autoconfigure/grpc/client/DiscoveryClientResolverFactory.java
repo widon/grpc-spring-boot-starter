@@ -25,6 +25,7 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 
 import com.nepxion.discovery.plugin.framework.adapter.PluginAdapter;
 import com.nepxion.discovery.plugin.strategy.context.StrategyContextHolder;
+import com.nepxion.discovery.plugin.strategy.service.context.ServiceStrategyContextHolder;
 
 import io.grpc.Attributes;
 import io.grpc.NameResolver;
@@ -43,21 +44,21 @@ public class DiscoveryClientResolverFactory extends NameResolverProvider {
     private DiscoveryClientChannelFactory discoveryClientChannelFactory;
     
     private PluginAdapter pluginAdapter;
-    private StrategyContextHolder strategyContextHolder;
+    private ServiceStrategyContextHolder serviceStrategyContextHolder;
 
     public DiscoveryClientResolverFactory(DiscoveryClient client,
-            DiscoveryClientChannelFactory discoveryClientChannelFactory, PluginAdapter pluginAdapter,StrategyContextHolder strategyContextHolder) {
+            DiscoveryClientChannelFactory discoveryClientChannelFactory, PluginAdapter pluginAdapter,ServiceStrategyContextHolder serviceStrategyContextHolder) {
         this.client = client;
         this.discoveryClientChannelFactory = discoveryClientChannelFactory;
         this.pluginAdapter = pluginAdapter;
-        this.strategyContextHolder = strategyContextHolder;
+        this.serviceStrategyContextHolder = serviceStrategyContextHolder;
     }
 
     @Nullable
     @Override
     public NameResolver newNameResolver(URI targetUri, Attributes params) {
         DiscoveryClientNameResolver discoveryClientNameResolver = new DiscoveryClientNameResolver(targetUri.toString(),
-                client, params, GrpcUtil.TIMER_SERVICE, GrpcUtil.SHARED_CHANNEL_EXECUTOR,pluginAdapter,strategyContextHolder);
+                client, params, GrpcUtil.TIMER_SERVICE, GrpcUtil.SHARED_CHANNEL_EXECUTOR,pluginAdapter,serviceStrategyContextHolder);
         discoveryClientChannelFactory.addDiscoveryClientNameResolver(discoveryClientNameResolver);
         return discoveryClientNameResolver;
     }
