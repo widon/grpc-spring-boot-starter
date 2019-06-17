@@ -202,7 +202,6 @@ public class DiscoveryClientNameResolver extends NameResolver {
                             log.error("Can not found gRPC server {}", name);
                         }
                     }
-//                    savedListener.onAddresses(equivalentAddressGroups, Attributes.EMPTY);
                     savedListener.onAddresses(equivalentAddressGroups, Attributes.EMPTY);
                 } else {
                     savedListener.onError(Status.UNAVAILABLE

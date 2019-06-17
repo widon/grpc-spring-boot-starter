@@ -78,7 +78,6 @@ import org.apache.commons.lang3.StringUtils;
  */
 @Slf4j
 @ExperimentalApi("https://github.com/grpc/grpc-java/issues/1771")
-//public final class RoundRobinLoadBalancerFactory extends LoadBalancer.Factory {
 public class RoundRobinLoadBalancerFactory extends LoadBalancer.Factory {
 
 //  private static final RoundRobinLoadBalancerFactory INSTANCE =
