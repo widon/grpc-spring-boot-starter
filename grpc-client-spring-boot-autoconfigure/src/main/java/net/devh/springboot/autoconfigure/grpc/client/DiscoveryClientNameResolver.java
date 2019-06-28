@@ -180,20 +180,15 @@ public class DiscoveryClientNameResolver extends NameResolver {
                             
                             String version = metadata.get("version");
                         	String versionKey = name+"-"+port+"-version";
-                        	serviceStrategyContextHolder.setRpcAttributes(versionKey,version);
-                        	serviceStrategyContextHolder.setRpcAttributes("serverName",name);
+//                        	serviceStrategyContextHolder.setRpcAttributes(versionKey,version);
+//                        	serviceStrategyContextHolder.setRpcAttributes("serverName",name);
                         	
-                        	
+                        	Attributes.Builder  builder = Attributes.newBuilder();
+                        	builder.set(GrpcClientConstants.NAME_ATTR_KEY, name);
                             if(version != null) { 
-                            	
-                            	Attributes.Builder  builder = Attributes.newBuilder();
                             	builder.set(GrpcClientConstants.VERSION_ATTR_KEY, metadata.get("version"));
-                            	
-                            	builder.set(GrpcClientConstants.NAME_ATTR_KEY, name);
-                            	
-                            	attr = builder.build();
                             }
-                            
+                            attr = builder.build();
                             log.info("Found gRPC server {} {}:{},{}={}", name, serviceInstance.getHost(), port,versionKey,version);
                             EquivalentAddressGroup addressGroup = new EquivalentAddressGroup(
                                     new InetSocketAddress(serviceInstance.getHost(), port), attr);

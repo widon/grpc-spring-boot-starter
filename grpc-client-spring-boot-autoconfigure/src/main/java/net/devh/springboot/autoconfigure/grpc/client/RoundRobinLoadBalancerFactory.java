@@ -88,7 +88,6 @@ public class RoundRobinLoadBalancerFactory extends LoadBalancer.Factory {
 
   public RoundRobinLoadBalancerFactory(PluginAdapter pluginAdapter,
 		  ServiceStrategyContextHolder serviceStrategyContextHolder) {
-	  System.out.println("初始化-----------");
 	  RoundRobinLoadBalancerFactory.pluginAdapter = pluginAdapter;
 	  RoundRobinLoadBalancerFactory.serviceStrategyContextHolder = serviceStrategyContextHolder;
 	  
@@ -488,7 +487,7 @@ public class RoundRobinLoadBalancerFactory extends LoadBalancer.Factory {
     	
     	String consumerServiced = pluginAdapter.getServiceId();
         String consumerVersion = pluginAdapter.getVersion();
-    	log.debug("当前主机信息：local server info, serviced={},version={},invoke server info,serviceId={}",consumerServiced,consumerVersion,serviceId);
+    	log.debug("local server info, serviced={},version={},invoke server info,serviceId={}",consumerServiced,consumerVersion,serviceId);
 //    	String grayChainStr = "{ \"cloud-grpc-server\":\"1.1\"}";
     	String grayChainStr = serviceStrategyContextHolder.getHeader(DiscoveryConstant.N_D_VERSION);
     	log.debug("invoke strategy info={}",grayChainStr);
@@ -516,7 +515,8 @@ public class RoundRobinLoadBalancerFactory extends LoadBalancer.Factory {
                 
             	size = newList.size();
                 if (size == 0) {
-                  throw new NoSuchElementException();
+                  log.error("{} has no proper server,grayVersion={}",serviceId,versions);
+                  throw new NoSuchElementException(serviceId+" has no proper server,please check gray version!");
                 }
             }
         }
