@@ -10,7 +10,7 @@
   </parent>
 
   <artifactId>grpc-server-spring-boot-starter</artifactId>
-  <version>2.1.0.RELEASE-cmb</version>
+<!--   <version>2.1.0.RELEASE-cmb</version> -->
 
   <dependencies>
     <dependency>
