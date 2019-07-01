@@ -29,6 +29,7 @@
   </scm>
 
   <properties>
+    <discovery.plugin.version>4.8.13-cmb-SNAPSHOT</discovery.plugin.version>
 
     <repo.releases>https://oss.sonatype.org/service/local/staging/deploy/maven2</repo.releases>
     <repo.snapshots>https://oss.sonatype.org/content/repositories/snapshots</repo.snapshots>
@@ -55,6 +56,8 @@
     <brave.instrumentation.grpc>5.1.2</brave.instrumentation.grpc>
   </properties>
 
+  
+  <!--
   <build>
     <pluginManagement>
       <plugins>
@@ -144,6 +147,23 @@
         </executions>
       </plugin>
     </plugins>
-  </build>
+    </build>
+    
+        -->
+        
+      <distributionManagement>
+		<repository>
+			<!--这里的ID要和setting的id一致-->
+			<id>nexus-releases</id>
+			<url>http://10.142.142.106:8081/nexus/content/repositories/thirdparty/</url>
+		</repository>
+		<!--这是打成快照版本的配置，如果不用这个snapshotRepository标签，打包失败，会报权限问题-->
+		<snapshotRepository>
+			<id>nexus-snapshots</id>
+			<url>http://10.142.142.106:8081/nexus/content/repositories/thirdpartySnapshots/</url>
+		</snapshotRepository>
+	</distributionManagement>
+  
+
 
 </project>
