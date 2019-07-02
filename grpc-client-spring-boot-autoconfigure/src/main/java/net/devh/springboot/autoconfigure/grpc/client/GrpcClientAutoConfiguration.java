@@ -29,7 +29,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.nepxion.discovery.plugin.framework.adapter.PluginAdapter;
-import com.nepxion.discovery.plugin.strategy.context.StrategyContextHolder;
 import com.nepxion.discovery.plugin.strategy.service.context.ServiceStrategyContextHolder;
 
 import brave.Tracing;

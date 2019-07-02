@@ -19,14 +19,15 @@
     <module>grpc-server-spring-boot-autoconfigure</module>
     <module>grpc-server-spring-boot-starter</module>
 
-    <module>examples</module>
+<!--     <module>examples</module> -->
   </modules>
-  <scm>
-    <connection>scm:git:https://github.com/yidongnan/grpc-spring-boot-starter</connection>
-    <developerConnection>scm:git:git@github.com:yidongnan/grpc-spring-boot-starter.git</developerConnection>
-    <url>https://github.com/yidongnan/grpc-spring-boot-starter</url>
-    <tag>HEAD</tag>
-  </scm>
+  
+<!--   <scm> -->
+<!--     <connection>scm:git:https://github.com/yidongnan/grpc-spring-boot-starter</connection> -->
+<!--     <developerConnection>scm:git:git@github.com:yidongnan/grpc-spring-boot-starter.git</developerConnection> -->
+<!--     <url>https://github.com/yidongnan/grpc-spring-boot-starter</url> -->
+<!--     <tag>HEAD</tag> -->
+<!--   </scm> -->
 
   <properties>
     <discovery.plugin.version>4.8.13-cmb-SNAPSHOT</discovery.plugin.version>
@@ -34,7 +35,7 @@
     <repo.releases>https://oss.sonatype.org/service/local/staging/deploy/maven2</repo.releases>
     <repo.snapshots>https://oss.sonatype.org/content/repositories/snapshots</repo.snapshots>
 
-    <scmBranch>n/a</scmBranch>
+<!--     <scmBranch>n/a</scmBranch> -->
 
     <!-- Overrides to parent POM -->
     <java.version>1.8</java.version>
@@ -57,112 +58,100 @@
   </properties>
 
   
-  <!--
-  <build>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-release-plugin</artifactId>
-          <version>2.5.3</version>
-          <configuration>
-            <tagNameFormat>@{project.version}</tagNameFormat>
-            <mavenExecutorId>forked-path</mavenExecutorId>
-            <autoVersionSubmodules>true</autoVersionSubmodules>
-            <preparationGoals>validate</preparationGoals>
-            <pushChanges>true</pushChanges>
-            <useReleaseProfile>false</useReleaseProfile>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
-    <plugins>
-      <plugin>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>buildnumber-maven-plugin</artifactId>
-        <version>1.4</version>
-        <executions>
-          <execution>
-            <phase>validate</phase>
-            <goals>
-              <goal>create</goal>
-            </goals>
-          </execution>
-        </executions>
-        <configuration>
-          <shortRevisionLength>7</shortRevisionLength>
-        </configuration>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-source-plugin</artifactId>
-        <version>3.0.1</version>
-        <executions>
-          <execution>
-            <id>attach-sources</id>
-            <goals>
-              <goal>jar-no-fork</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-javadoc-plugin</artifactId>
-        <version>2.10.4</version>
-        <executions>
-          <execution>
-            <id>attach-javadocs</id>
-            <goals>
-              <goal>jar</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>com.diffplug.spotless</groupId>
-        <artifactId>spotless-maven-plugin</artifactId>
-        <version>1.14.0</version>
-        <configuration>
-          <java>
-            <licenseHeader>
-              <file>${maven.multiModuleProjectDirectory}/extra/spotless/mit-license.java</file>
-            </licenseHeader>
-            <removeUnusedImports/>
-            <importOrder>
-              <file>${maven.multiModuleProjectDirectory}/extra/eclipse/eclipse.importorder</file>
-            </importOrder>
-            <eclipse>
-              <file>${maven.multiModuleProjectDirectory}/extra/eclipse/eclipse-formatter.xml</file>
-            </eclipse>
-          </java>
-        </configuration>
-        <executions>
-          <execution>
-            <phase>verify</phase>
-            <goals>
-              <goal>check</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-    </plugins>
-    </build>
+
+<!--   <build> -->
+<!--     <pluginManagement> -->
+<!--       <plugins> -->
+<!--         <plugin> -->
+<!--           <groupId>org.apache.maven.plugins</groupId> -->
+<!--           <artifactId>maven-release-plugin</artifactId> -->
+<!--           <version>2.5.3</version> -->
+<!--           <configuration> -->
+<!--             <tagNameFormat>@{project.version}</tagNameFormat> -->
+<!--             <mavenExecutorId>forked-path</mavenExecutorId> -->
+<!--             <autoVersionSubmodules>true</autoVersionSubmodules> -->
+<!--             <preparationGoals>validate</preparationGoals> -->
+<!--             <pushChanges>true</pushChanges> -->
+<!--             <useReleaseProfile>false</useReleaseProfile> -->
+<!--           </configuration> -->
+<!--         </plugin> -->
+<!--       </plugins> -->
+<!--     </pluginManagement> -->
+<!--     <plugins> -->
+<!--       <plugin> -->
+<!--         <groupId>org.codehaus.mojo</groupId> -->
+<!--         <artifactId>buildnumber-maven-plugin</artifactId> -->
+<!--         <version>1.4</version> -->
+<!--         <executions> -->
+<!--           <execution> -->
+<!--             <phase>validate</phase> -->
+<!--             <goals> -->
+<!--               <goal>create</goal> -->
+<!--             </goals> -->
+<!--           </execution> -->
+<!--         </executions> -->
+<!--         <configuration> -->
+<!--           <shortRevisionLength>7</shortRevisionLength> -->
+<!--         </configuration> -->
+<!--       </plugin> -->
+<!--       <plugin> -->
+<!--         <groupId>org.apache.maven.plugins</groupId> -->
+<!--         <artifactId>maven-source-plugin</artifactId> -->
+<!--         <version>3.0.1</version> -->
+<!--         <executions> -->
+<!--           <execution> -->
+<!--             <id>attach-sources</id> -->
+<!--             <goals> -->
+<!--               <goal>jar-no-fork</goal> -->
+<!--             </goals> -->
+<!--           </execution> -->
+<!--         </executions> -->
+<!--       </plugin> -->
+<!--       <plugin> -->
+<!--         <groupId>org.apache.maven.plugins</groupId> -->
+<!--         <artifactId>maven-javadoc-plugin</artifactId> -->
+<!--         <version>2.10.4</version> -->
+<!--         <executions> -->
+<!--           <execution> -->
+<!--             <id>attach-javadocs</id> -->
+<!--             <goals> -->
+<!--               <goal>jar</goal> -->
+<!--             </goals> -->
+<!--           </execution> -->
+<!--         </executions> -->
+<!--       </plugin> -->
+<!--       <plugin> -->
+<!--         <groupId>com.diffplug.spotless</groupId> -->
+<!--         <artifactId>spotless-maven-plugin</artifactId> -->
+<!--         <version>1.14.0</version> -->
+<!--         <configuration> -->
+<!--           <java> -->
+<!--             <licenseHeader> -->
+<!--               <file>${maven.multiModuleProjectDirectory}/extra/spotless/mit-license.java</file> -->
+<!--             </licenseHeader> -->
+<!--             <removeUnusedImports/> -->
+<!--             <importOrder> -->
+<!--               <file>${maven.multiModuleProjectDirectory}/extra/eclipse/eclipse.importorder</file> -->
+<!--             </importOrder> -->
+<!--             <eclipse> -->
+<!--               <file>${maven.multiModuleProjectDirectory}/extra/eclipse/eclipse-formatter.xml</file> -->
+<!--             </eclipse> -->
+<!--           </java> -->
+<!--         </configuration> -->
+<!--         <executions> -->
+<!--           <execution> -->
+<!--             <phase>verify</phase> -->
+<!--             <goals> -->
+<!--               <goal>check</goal> -->
+<!--             </goals> -->
+<!--           </execution> -->
+<!--         </executions> -->
+<!--       </plugin> -->
+<!--     </plugins> -->
+<!--     </build> -->
     
-        -->
+
         
-      <distributionManagement>
-		<repository>
-			<!--这里的ID要和setting的id一致-->
-			<id>nexus-releases</id>
-			<url>http://10.142.142.106:8081/nexus/content/repositories/thirdparty/</url>
-		</repository>
-		<!--这是打成快照版本的配置，如果不用这个snapshotRepository标签，打包失败，会报权限问题-->
-		<snapshotRepository>
-			<id>nexus-snapshots</id>
-			<url>http://10.142.142.106:8081/nexus/content/repositories/thirdpartySnapshots/</url>
-		</snapshotRepository>
-	</distributionManagement>
   
 
 

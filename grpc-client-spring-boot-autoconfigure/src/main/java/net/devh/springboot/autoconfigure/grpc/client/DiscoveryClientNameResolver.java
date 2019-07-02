@@ -18,7 +18,6 @@
 package net.devh.springboot.autoconfigure.grpc.client;
 
 import java.net.InetSocketAddress;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -34,20 +33,15 @@ import org.springframework.cloud.client.discovery.DiscoveryClient;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.nepxion.discovery.plugin.framework.adapter.PluginAdapter;
-import com.nepxion.discovery.plugin.strategy.context.StrategyContextHolder;
 import com.nepxion.discovery.plugin.strategy.service.context.ServiceStrategyContextHolder;
 
 import io.grpc.Attributes;
-import io.grpc.Attributes.Key;
-import io.grpc.LoadBalancer.Subchannel;
 import io.grpc.Channel;
-import io.grpc.ConnectivityStateInfo;
 import io.grpc.EquivalentAddressGroup;
 import io.grpc.NameResolver;
 import io.grpc.Status;
 import io.grpc.internal.SharedResourceHolder;
 import lombok.extern.slf4j.Slf4j;
-import net.devh.springboot.autoconfigure.grpc.client.RoundRobinLoadBalancerFactory.Ref;
 
 /**
  * The DiscoveryClientNameResolver configures the hosts and the associated ports for {@link Channel}s to use based on a

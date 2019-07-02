@@ -17,6 +17,20 @@
       </properties>
 
   <dependencies>
+  
+	  <dependency>
+	    <groupId>javax.inject</groupId>
+	    <artifactId>javax.inject</artifactId>
+	    <version>1</version>
+	</dependency>
+	
+	<dependency>
+	    <groupId>commons-collections</groupId>
+	    <artifactId>commons-collections</artifactId>
+	    <version>3.2.2</version>
+	</dependency>
+
+	
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-configuration-processor</artifactId>
